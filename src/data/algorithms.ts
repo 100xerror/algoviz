@@ -1164,5 +1164,235 @@ int main() {
     return 0;
 }
 `
+  },
+  {
+    id: 13,
+    name: "Kahn's Algorithm (Topological Sort)",
+    code: `#include <bits/stdc++.h>
+using namespace std;
+
+class TopologicalSort {
+private:
+    vector<int> graph[1005];
+    priority_queue<int, vector<int>, greater<int>> PQ;
+    int in_degree[1005] = {0};
+    
+public:
+    vector<int> kahn(int n, int m, vector<pair<int,int>>& edges) {
+        vector<int> ans;
+        
+        // Build graph and in-degree
+        for(auto& edge : edges) {
+            graph[edge.first].push_back(edge.second);
+            in_degree[edge.second]++;
+        }
+        
+        // Initialize queue
+        for(int i=1; i<=n; i++) {
+            if(in_degree[i] == 0) PQ.push(i);
+        }
+        
+        // Process nodes
+        while(!PQ.empty()) {
+            int u = PQ.top();
+            PQ.pop();
+            ans.push_back(u);
+            
+            for(int v : graph[u]) {
+                if(--in_degree[v] == 0) PQ.push(v);
+            }
+        }
+        
+        if(ans.size() != n) 
+            cout << "Cycle Detected!" << endl;
+            
+        return ans;
+    }
+};
+// Usage example in main()
+`
+  },
+  {
+    id: 14,
+    name: "Rabin-Karp String Matching",
+    code: `#include <iostream>
+#include <string>
+using namespace std;
+
+class RabinKarp {
+private:
+    const int BASE = 256;
+    const int PRIME = 101;
+    
+    int hash(string str, int len) {
+        int h = 0;
+        for(int i=0; i<len; i++) {
+            h = (BASE * h + str[i]) % PRIME;
+        }
+        return h;
+    }
+    
+public:
+    void search(string pattern, string text) {
+        int M = pattern.length();
+        int N = text.length();
+        int h = 1;
+        
+        // Calculate h = BASE^(M-1)
+        for(int i=0; i<M-1; i++)
+            h = (h * BASE) % PRIME;
+            
+        int pHash = hash(pattern, M);
+        int tHash = hash(text, M);
+        
+        for(int i=0; i<=N-M; i++) {
+            if(pHash == tHash) {
+                bool match = true;
+                for(int j=0; j<M; j++) {
+                    if(text[i+j] != pattern[j]) {
+                        match = false;
+                        break;
+                    }
+                }
+                if(match) 
+                    cout << "Pattern found at index " << i << endl;
+            }
+            
+            if(i < N-M) {
+                tHash = (BASE*(tHash - text[i]*h) + text[i+M]) % PRIME;
+                if(tHash < 0) tHash += PRIME;
+            }
+        }
+    }
+};
+// Example usage in main()
+`
+  },
+  {
+    id: 15,
+    name: "Brute Force String Matching",
+    code: `#include <iostream>
+#include <string>
+using namespace std;
+
+class BruteForceStringMatch {
+public:
+    int search(string text, string pattern) {
+        int n = text.length();
+        int m = pattern.length();
+        
+        for(int i=0; i<=n-m; i++) {
+            int j;
+            for(j=0; j<m; j++) {
+                if(text[i+j] != pattern[j])
+                    break;
+            }
+            if(j == m) return i;
+        }
+        return -1;
+    }
+};
+// Example usage in main()
+`
+  },
+  {
+    id: 16,
+    name: "KMP Algorithm",
+    code: `#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+class KMP {
+private:
+    vector<int> computeLPS(string pattern) {
+        int m = pattern.length();
+        vector<int> lps(m, 0);
+        int len = 0;
+        
+        for(int i=1; i<m; ) {
+            if(pattern[i] == pattern[len]) {
+                lps[i++] = ++len;
+            } else {
+                if(len != 0) len = lps[len-1];
+                else lps[i++] = 0;
+            }
+        }
+        return lps;
+    }
+    
+public:
+    vector<int> search(string text, string pattern) {
+        vector<int> matches;
+        int n = text.length();
+        int m = pattern.length();
+        vector<int> lps = computeLPS(pattern);
+        
+        int i=0, j=0;
+        while(i < n) {
+            if(text[i] == pattern[j]) {
+                i++;
+                j++;
+            }
+            
+            if(j == m) {
+                matches.push_back(i-j);
+                j = lps[j-1];
+            } else if(i < n && text[i] != pattern[j]) {
+                if(j != 0) j = lps[j-1];
+                else i++;
+            }
+        }
+        return matches;
+    }
+};
+// Example usage in main()
+`
+  },
+  {
+    id: 17,
+    name: "Hamiltonian Cycle",
+    code: `#include <iostream>
+#include <vector>
+using namespace std;
+
+class HamiltonianCycle {
+private:
+    bool isSafe(int v, vector<vector<int>>& graph, vector<int>& path, int pos) {
+        if(graph[path[pos-1]][v] == 0) return false;
+        for(int i=0; i<pos; i++) 
+            if(path[i] == v) return false;
+        return true;
+    }
+    
+    bool hamCycleUtil(vector<vector<int>>& graph, vector<int>& path, int pos) {
+        if(pos == graph.size()) {
+            return graph[path[pos-1]][path[0]] == 1;
+        }
+        
+        for(int v=1; v<graph.size(); v++) {
+            if(isSafe(v, graph, path, pos)) {
+                path[pos] = v;
+                if(hamCycleUtil(graph, path, pos+1))
+                    return true;
+                path[pos] = -1;
+            }
+        }
+        return false;
+    }
+    
+public:
+    vector<int> findCycle(vector<vector<int>>& graph) {
+        vector<int> path(graph.size(), -1);
+        path[0] = 0;
+        
+        if(hamCycleUtil(graph, path, 1)) 
+            return path;
+            
+        return {};
+    }
+};
+// Example usage in main()
+`
   }
 ];
