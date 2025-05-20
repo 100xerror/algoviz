@@ -1394,5 +1394,197 @@ public:
 };
 // Example usage in main()
 `
-  }
+  },
+  {
+  id: 18,
+  name: "Longest Increasing Subsequence (DP)",
+  code: `#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+class LIS {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> dp(n, 1);
+        
+        for(int i=1; i<n; i++) {
+            for(int j=0; j<i; j++) {
+                if(nums[i] > nums[j]) {
+                    dp[i] = max(dp[i], dp[j]+1);
+                }
+            }
+        }
+        return *max_element(dp.begin(), dp.end());
+    }
+};
+// Usage: LIS().lengthOfLIS({10,9,2,5,3,7,101,18})`
+},
+
+{
+  id: 19,
+  name: "Partition to K Equal Sum Subsets",
+  code: `#include <vector>
+using namespace std;
+
+class PartitionKSubsets {
+public:
+    bool canPartition(vector<int>& nums, int k) {
+        int sum = accumulate(nums.begin(), nums.end(), 0);
+        if(sum % k != 0) return false;
+        vector<bool> visited(nums.size(), false);
+        return backtrack(nums, visited, 0, k, 0, sum/k);
+    }
+
+    bool backtrack(vector<int>& nums, vector<bool>& visited, 
+                  int start, int k, int current, int target) {
+        if(k == 1) return true;
+        if(current == target) 
+            return backtrack(nums, visited, 0, k-1, 0, target);
+            
+        for(int i=start; i<nums.size(); i++) {
+            if(!visited[i] && current+nums[i] <= target) {
+                visited[i] = true;
+                if(backtrack(nums, visited, i+1, k, current+nums[i], target))
+                    return true;
+                visited[i] = false;
+            }
+        }
+        return false;
+    }
+};`
+},
+
+{
+  id: 20,
+  name: "0/1 Knapsack (Backtracking)",
+  code: `#include <iostream>
+#include <vector>
+using namespace std;
+
+class KnapsackBT {
+public:
+    int maxValue = 0;
+    
+    void backtrack(vector<int>& values, vector<int>& weights, 
+                  int capacity, int index, int currentVal) {
+        if(capacity < 0) return;
+        if(index == values.size()) {
+            maxValue = max(maxValue, currentVal);
+            return;
+        }
+        
+        // Include item
+        backtrack(values, weights, capacity-weights[index], 
+                 index+1, currentVal+values[index]);
+        
+        // Exclude item
+        backtrack(values, weights, capacity, index+1, currentVal);
+    }
+    
+    int solve(vector<int>& values, vector<int>& weights, int capacity) {
+        backtrack(values, weights, capacity, 0, 0);
+        return maxValue;
+    }
+};`
+},
+
+{
+  id: 21,
+  name: "Greedy Coin Change",
+  code: `#include <vector>
+#include <algorithm>
+using namespace std;
+
+class CoinChange {
+public:
+    int greedy(vector<int>& coins, int amount) {
+        sort(coins.rbegin(), coins.rend());
+        int count = 0;
+        
+        for(int coin : coins) {
+            while(amount >= coin) {
+                amount -= coin;
+                count++;
+            }
+        }
+        return amount == 0 ? count : -1;
+    }
+};`
+},
+
+{
+  id: 22,
+  name: "Quick Sort",
+  code: `#include <vector>
+using namespace std;
+
+class QuickSort {
+public:
+    void sort(vector<int>& arr) {
+        quicksort(arr, 0, arr.size()-1);
+    }
+
+    void quicksort(vector<int>& arr, int low, int high) {
+        if(low < high) {
+            int pi = partition(arr, low, high);
+            quicksort(arr, low, pi-1);
+            quicksort(arr, pi+1, high);
+        }
+    }
+
+    int partition(vector<int>& arr, int low, int high) {
+        int pivot = arr[high];
+        int i = low - 1;
+        
+        for(int j=low; j<high; j++) {
+            if(arr[j] <= pivot) {
+                i++;
+                swap(arr[i], arr[j]);
+            }
+        }
+        swap(arr[i+1], arr[high]);
+        return i+1;
+    }
+};`
+},
+
+{
+  id: 23,
+  name: "Merge Sort",
+  code: `#include <vector>
+using namespace std;
+
+class MergeSort {
+public:
+    void sort(vector<int>& arr) {
+        mergeSort(arr, 0, arr.size()-1);
+    }
+
+    void mergeSort(vector<int>& arr, int l, int r) {
+        if(l >= r) return;
+        int m = l + (r-l)/2;
+        mergeSort(arr, l, m);
+        mergeSort(arr, m+1, r);
+        merge(arr, l, m, r);
+    }
+
+    void merge(vector<int>& arr, int l, int m, int r) {
+        vector<int> temp(r-l+1);
+        int i=l, j=m+1, k=0;
+        
+        while(i<=m && j<=r) {
+            if(arr[i] <= arr[j]) temp[k++] = arr[i++];
+            else temp[k++] = arr[j++];
+        }
+        
+        while(i<=m) temp[k++] = arr[i++];
+        while(j<=r) temp[k++] = arr[j++];
+        
+        for(int p=0; p<k; p++)
+            arr[l+p] = temp[p];
+    }
+};`
+}
 ];
